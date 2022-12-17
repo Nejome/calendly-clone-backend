@@ -3,7 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -41,4 +45,19 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function password(): Attribute
+    {
+        return Attribute::set(fn($value) => $value != null ? bcrypt($value) : $this->password);
+    }
+
+    public function eventTypes(): HasMany
+    {
+        return $this->hasMany(EventType::class);
+    }
+
+    public function events(): HasManyThrough
+    {
+        return $this->hasManyThrough(Event::class, EventType::class);
+    }
 }
